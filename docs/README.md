@@ -19,12 +19,15 @@
   - `$ make run`
 
 ## Backend
+
 バックエンドは、Goを使用しています。
+
 | endpoint | 内容 |
 | --- | --- |
-| /healthz | `ok`が返される |
+| `/healthz` | `ok`が返される |
 
 ## TIPS
+
 - PostgreSQLのCLIに入る方法
   - `$ docker compose exec db bash`
   - `$ psql -p 5432 -U app -d colab`
