@@ -18,6 +18,15 @@
   - `$ cd backend`
   - `$ make run`
 
+- `golang-migrate`をインストールする
+  - `$ brew install golang-migrate`
+
+- migrateする
+  - `make migrate-up`
+
+- down_migrateする
+  - `make migrate-down`
+
 ## Backend
 
 バックエンドは、Goを使用しています。
@@ -29,8 +38,7 @@
 ## TIPS
 
 - PostgreSQLのCLIに入る方法
-  - `$ docker compose exec db bash`
-  - `$ psql -p 5432 -U app -d colab`
+  - `$ docker exec -it colab-postgres psql -U app -d colab`
 
 - Backendのテストを実行させる方法
   - `$ cd backend`
