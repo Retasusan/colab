@@ -22,10 +22,10 @@
   - `$ brew install golang-migrate`
 
 - migrateする
-  - `make migrate-up`
+  - `$ make migrate-up`
 
 - down_migrateする
-  - `make migrate-down`
+  - `$ make migrate-downd`
 
 ## Backend
 
