@@ -185,71 +185,76 @@ ENDED
 
 役職交代は以下の手順で行う。
 
-1. 次期Term作成
+### 1. 次期Term作成
+```shell
 2027 Term
 status = DRAFT
-2. 次期役職を割り当て
+```
+
+### 2. 次期役職を割り当て
+```shell
 PositionAssignment
 state = PLANNED
+```
 
 例
-
+```shell
 部長 → 山田
 会計 → 鈴木
 広報 → 佐藤
-3. 承認
+```
 
-役職変更は Request として承認される。
+### 3. 承認
 
-4. Term開始時に切替
+役職変更は Request として承認されます。
+
+### 4. Term開始時に切替
+```shell
 2026 Term → ARCHIVED
 2027 Term → ACTIVE
+```
 
 同時に
-
+```
 PLANNED → ACTIVE
-
+```
 へ変更。
 
-権限評価
+## 権限評価
 
-役職ロールは
-PositionAssignment を参照して動的に評価する。
-
-つまり
-
-user has role = position(active)
-
-の形になる。
-
+役職ロールはPositionAssignment を参照して動的に評価します。
+つまり、user has role = position(active)の形になる。
 これにより
-
+```shell
 役職切替
 
 代理
 
 過去履歴
-
-を安全に管理できる。
+```
+を安全に管理できます。
 
 Delegation（代理）
 
 役職保持者が一時的に不在の場合、代理を設定できる。
 
+```shell
 Delegation
  ├─ positionId
  ├─ fromMembershipId
  ├─ toMembershipId
  ├─ startsAt
  └─ endsAt
+```
 
 例
-
+```shell
 会計 → 1ヶ月代理
 Audit Log
+```
 
-以下の操作はすべて監査ログに記録される。
-
+以下の操作はすべて監査ログに記録されます。
+```
 役職変更
 
 権限変更
@@ -259,23 +264,22 @@ Audit Log
 チャンネル権限変更
 
 承認操作
+```
 
+```shell
 AuditLog
  ├─ actorId
  ├─ action
  ├─ target
  ├─ payload
  └─ createdAt
-Future Extensions
+```
 
-将来的に以下の機能を追加可能。
+## Future Extensions
 
-期ごとの予算管理
-
-イベント管理
-
-出席管理
-
-自動OB移行（卒業年度）
-
-Bot / Automation
+- 将来的に以下の機能を追加可能。
+- 期ごとの予算管理
+- イベント管理
+- 出席管理
+- 自動OB移行（卒業年度）
+- Bot / Automation
