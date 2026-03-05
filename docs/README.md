@@ -27,6 +27,9 @@
 - down_migrateする
   - `$ make migrate-downd`
 
+- migrate versionをみる
+  - `$ make migrate-version`
+
 ## Backend
 
 バックエンドは、Goを使用しています。
