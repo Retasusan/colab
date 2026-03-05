@@ -4,7 +4,7 @@
 
 ここでの権限管理とは、仮入部、退部、OB、役職変更、引き継ぎなどを指します。
 
-## 利用手順
+## Backend 利用手順
 
 - postgresをDocker で起動させる
   - `$ cd backend`
@@ -30,7 +30,13 @@
 - migrate versionをみる
   - `$ make migrate-version`
 
-## Backend
+## Frontend 利用手順
+
+- Next.jsサーバーを起動させる
+  - `pnpm dev`
+  - ブラウザで`http://localhost:3000/`にアクセス
+
+## Backend API
 
 バックエンドは、Goを使用しています。
 
