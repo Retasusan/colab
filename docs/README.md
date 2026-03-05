@@ -8,11 +8,15 @@
 
 - postgresをDocker で起動させる
   - `$ cd backend`
-  - `$ docker compose up -d`
+  - `$ make db-up`
+
+- postgresのDocker で終了させる
+  - `$ cd backend`
+  - `$ make db-down`
 
 - Backendのサーバーを起動させる
   - `$ cd backend`
-  - `$ go run ./cmd/api`
+  - `$ make run`
 
 ## Backend
 バックエンドは、Goを使用しています。
@@ -26,4 +30,5 @@
   - `$ psql -p 5432 -U app -d colab`
 
 - Backendのテストを実行させる方法
-  - `$ go test ./...`
+  - `$ cd backend`
+  - `$ make test`
