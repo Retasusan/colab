@@ -14,6 +14,12 @@
   - `$ cd backend`
   - `$ go run ./cmd/api`
 
+## Backend
+バックエンドは、Goを使用しています。
+| endpoint | 内容 |
+| --- | --- |
+| /healthz | `ok`が返される |
+
 ## TIPS
 - PostgreSQLのCLIに入る方法
   - `$ docker compose exec db bash`
