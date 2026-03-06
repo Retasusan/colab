@@ -36,6 +36,12 @@
   - `pnpm dev`
   - ブラウザで`http://localhost:3000/`にアクセス
 
+- better-authのシークレットを`.env.local`に設定する
+  - `env.local.example`を`.env.local`にコピーする
+    - `cp env.local.example .env.local`
+  - `BETTER_AUTH_SECRET=your_secret`
+    - `your_secret`は、`openssl rand -base64 32`で生成できます。
+
 ## Backend API
 
 バックエンドは、Goを使用しています。
