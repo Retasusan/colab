@@ -38,6 +38,13 @@
   - `BETTER_AUTH_SECRET=your_secret`
     - `your_secret`は、`openssl rand -base64 32`で生成できます。
 
+- Google OAuthクライアント作成
+  - Google Cloud Console → 「API とサービス」→「認証情報」
+  - 「OAuth クライアント ID」を作成（Web アプリケーション）
+  - Authorized redirect URIを`http://localhost:3000/api/auth/callback/google`もしくは、`https://<your-domain>/api/auth/callback/google`に設定
+
+- `.env.local`に`GOOGLE_CLIENT_ID`と`GOOGLE_CLIENT_SECRET`を設定
+
 - Next.jsサーバーを起動させる
   - `pnpm dev`
   - ブラウザで`http://localhost:3000/`にアクセス
