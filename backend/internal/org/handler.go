@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	appauth "github.com/Retasusan/colab_backend/internal/auth"
 	"gorm.io/gorm"
 )
 
@@ -54,9 +55,9 @@ type CreateOrgResponse struct {
 }
 
 func (h *Handler) CreateOrganization(w http.ResponseWriter, r *http.Request) {
-	authUserID := strings.TrimSpace(r.Header.Get("X-Debug-User-ID"))
-	if authUserID == "" {
-		http.Error(w, "missing X-Debug-User-ID", http.StatusUnauthorized)
+	authUserID, ok := appauth.UserIDFromContext(r.Context())
+	if !ok || strings.TrimSpace(authUserID) == "" {
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
 		return
 	}
 
@@ -122,9 +123,9 @@ type ListOrgResponse struct {
 }
 
 func (h *Handler) ListOrganizations(w http.ResponseWriter, r *http.Request) {
-	authUserID := strings.TrimSpace(r.Header.Get("X-Debug-User-ID"))
-	if authUserID == "" {
-		http.Error(w, "missing X-Debug-User-ID", http.StatusInternalServerError)
+	authUserID, ok := appauth.UserIDFromContext(r.Context())
+	if !ok || strings.TrimSpace(authUserID) == "" {
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
 		return
 	}
 
