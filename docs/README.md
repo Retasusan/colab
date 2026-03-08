@@ -53,9 +53,11 @@
 
 バックエンドは、Goを使用しています。
 
-| endpoint | 内容 |
-| --- | --- |
-| `/healthz` | `ok`が返される |
+| endpoint | method | 内容 |
+| --- | --- | --- |
+| `/healthz` | GET | `ok`が返される |
+| `/api/orgs` | GET | orgが返される |
+| `/api/orgs` | POST | orgが作成される |
 
 ## TIPS
 
