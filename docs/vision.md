@@ -1,285 +1,132 @@
-# Domain Model — Circle Governance
+# Colab
 
-このアプリケーションは、一般的なチャットアプリではなく、大学サークルの運営プロセスを中心に設計されたコミュニケーション基盤です。
+## これは何？
 
-
-特に以下を重要な設計対象とします。
-
-- 新歓導線（見学 → 仮入部 → 入部）
-- 組織運営（役職・委任）
-- 承認プロセス
-- 役職の定期交代
-- 監査ログ（引き継ぎ）
-- Member Lifecycle（部員ライフサイクル）
-
-サークルメンバーは以下の状態を持ちます。
-
-```shell
-VISITOR → TRIAL → MEMBER → ALUMNI
-                    ↓
-                   LEFT
+```
+LTや登壇時に、HDMI接続不良などが起きても、ブラウザだけで投影先や参加者と素早く接続できる、LAN優先・フォールバック対応のリアルタイム共有アプリ
 ```
 
-## Membership Status
-前述したサークルメンバーの状態についてです。
+## ユースケース
 
+### ユースケース1
 
-| Status |	説明 |
-| --- | --- |
-| VISITOR |	見学者。公開チャンネルのみ閲覧可能 |
-| TRIAL |	仮入部。新歓・案内系チャンネルへアクセス可能 |
-| MEMBER |	正式部員 |
-| ALUMNI |	OB/OG。閲覧中心 |
-| LEFT |	退部 |
-| BANNED |	強制退会 |
+- 登壇者 → 投影PC
+ - 登壇者がルームを作る
+ - 投影PCが参加する
+ - テキスト / URL / 画面共有を行う
 
+### ユースケース2
 
-## 状態遷移
-| From |	To |	条件 |
-| VISITOR |	TRIAL |	仮入部申請 → 承認 |
-| TRIAL |	MEMBER |	入部申請 → 承認 |
-| MEMBER |	ALUMNI |	卒業 or OB移行 |
-| MEMBER |	LEFT |	退部 |
-| * | BANNED |	管理者のみ |
+- 登壇者が資料URLや補足情報を共有する
+- 参加者が一時的に入室する
 
+### ユースケース3
 
-## Governance — 承認プロセス
+- LAN外でもチャットや共有ができる
+- WebRTC失敗時もサーバ経由で使える
 
-サークル運営では、重要操作は申請→承認→実行のフローを通すことが多いので、本アプリもそれに倣います。
+## MVP
 
-### Request Types
+- ルーム作成
+- ゲスト参加
+- 接続コード or QR参加
+- 1対1接続
+- WebRTC DataChannel
+- テキスト共有
+- URL共有
+- direct失敗時のrelay fallback
+- 接続状態表示
 
-| Type |	説明 |
-| JOIN_TRIAL |	仮入部申請 |
-| JOIN_MEMBER |	入部申請|
-| LEAVE |	退部申請 |
-| PROMOTE_ALUMNI |	OB移行 |
-| ROLE_ASSIGN |	役職付与 |
-| CHANNEL_CREATE |	チャンネル作成 |
+## 接続フロー
 
+### 発表者側
 
-## Request Model
+1. ルームを作成する
+2. 接続コードとQRを表示する
+3. 参加者の接続を待つ
+4. direct接続を試す
+5. direct失敗時はrelayへ切替
 
-```shell
-Request
- ├─ id
- ├─ orgId
- ├─ type
- ├─ requesterMembershipId
- ├─ status
- ├─ payload (JSON)
- ├─ createdAt
- └─ expiresAt
-```
+### 参加者側
 
+1. QRを読む or コードを入力する
+2. ルームに参加する
+3. signaling serverに接続する
+4. WebRTC接続を試す
+5. 接続完了後、共有データを受け取る
 
-## Status
+## 通信アーキテクチャ
 
-```shell
-PENDING
-APPROVED
-REJECTED
-CANCELED
-EXPIRED
-```
+### control plane
 
-## Role System
+- WebSocket
+- 役割: room join, signaling, 状態通知
 
-権限管理はRBACを採用します。
-ただし、サークル特化のため、ロールを2種類に分けます。
+### data plane
 
-### 1. Position Role（役職）
+- 第一候補: WebRTC DataChannel
+- フォールバック: server relay
 
-- 任期があるロール。
+## 状態
 
-#### 例
-- 部長
-- 副部長
-- 会計
-- 広報
-- 新歓責任者
+### ConnectionState
 
-#### 特徴
-- 任期付き
-- 定期的に交代
-- 監査対象
+- idle
+- joining_room
+- signaling
+- negotiating
+- direct_connected
+- relay_connected
+- disconnected
+- error
 
-2. Operational Role（常設ロール）
+### RoomState
 
-- 任期がないロール。
+- created
+- waiting_peer
+- peer_joined
+- active
+- expired
+- closed
 
-#### 例
-- 写真係
-- 配信係
-- 機材係
+## ドメイン
 
-#### 特徴
-- 任期なし
-- 必要に応じて付与
-- Term System（期）
+- Room
+- Participant
+- Session
+- Transport
+- Message
+- ConnectionAttempt
 
-- 役職の定期入れ替えを安全に行うため、Term（期）モデルを導入します。
+## 実装計画
 
-#### Term
-```shell
-Term
- ├─ id
- ├─ orgId
- ├─ name
- ├─ startsAt
- ├─ endsAt
- └─ status
-```
+### Phase 1: signalingだけ
 
-#### Status
-```shell
-DRAFT
-ACTIVE
-ARCHIVED
-```
+- ルーム作成
+- 参加
+- WebSocket接続
+- offer/answer/ICE転送
 
-## 任期
-デフォルトでは 1年任期 とする。
+### Phase 2: direct通信
 
-例
-- 2026 Term
-- 2027 Term
+- WebRTC DataChannel
+- 1対1テキスト送信
+- 接続状態表示
 
+### Phase 3: fallback
 
-ただしシステム上は
+- relay transport実装
+- direct失敗時の切替
 
-```shell
-startsAt
-endsAt
-```
+### Phase 4: UX改善
 
-で管理されるため、将来的に
-- 半年
-- 四半期
-- 不定期
-などにも変更可能。
+- QRコード
+- ゲスト名入力
+- 期限切れルーム
+- 再接続
 
-## Position Assignment
+### Phase 5: 共有強化
 
-役職はユーザーに直接付与されるのではなく、Term に紐づく形で割り当てられます。
-
-```shell
-PositionAssignment
- ├─ id
- ├─ termId
- ├─ positionId
- ├─ membershipId
- ├─ state
- ├─ effectiveFrom
- └─ effectiveTo
-```
-
-### State
-```shell
-PLANNED
-ACTIVE
-ENDED
-```
-
-## 役職入れ替えフロー
-
-役職交代は以下の手順で行う。
-
-### 1. 次期Term作成
-```shell
-2027 Term
-status = DRAFT
-```
-
-### 2. 次期役職を割り当て
-```shell
-PositionAssignment
-state = PLANNED
-```
-
-例
-```shell
-部長 → 山田
-会計 → 鈴木
-広報 → 佐藤
-```
-
-### 3. 承認
-
-役職変更は Request として承認されます。
-
-### 4. Term開始時に切替
-```shell
-2026 Term → ARCHIVED
-2027 Term → ACTIVE
-```
-
-同時に
-```
-PLANNED → ACTIVE
-```
-へ変更。
-
-## 権限評価
-
-役職ロールはPositionAssignment を参照して動的に評価します。
-つまり、user has role = position(active)の形になる。
-これにより
-```shell
-役職切替
-
-代理
-
-過去履歴
-```
-を安全に管理できます。
-
-Delegation（代理）
-
-役職保持者が一時的に不在の場合、代理を設定できる。
-
-```shell
-Delegation
- ├─ positionId
- ├─ fromMembershipId
- ├─ toMembershipId
- ├─ startsAt
- └─ endsAt
-```
-
-例
-```shell
-会計 → 1ヶ月代理
-Audit Log
-```
-
-以下の操作はすべて監査ログに記録されます。
-```
-役職変更
-
-権限変更
-
-入退部
-
-チャンネル権限変更
-
-承認操作
-```
-
-```shell
-AuditLog
- ├─ actorId
- ├─ action
- ├─ target
- ├─ payload
- └─ createdAt
-```
-
-## Future Extensions
-
-- 将来的に以下の機能を追加可能。
-- 期ごとの予算管理
-- イベント管理
-- 出席管理
-- 自動OB移行（卒業年度）
-- Bot / Automation
+- URL共有
+- 画面共有
+- 発表者モード
